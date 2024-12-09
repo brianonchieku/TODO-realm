@@ -8,5 +8,4 @@ class TodoItem: RealmObject {
     @PrimaryKey val _id: ObjectId = ObjectId()
     var description: String = ""
     var isCompleted: Boolean = false
-
 }
