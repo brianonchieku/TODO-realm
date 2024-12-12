@@ -4,10 +4,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todorealm.models.TodoItem
 import io.realm.kotlin.UpdatePolicy
+import io.realm.kotlin.ext.query
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TodoViewModel: ViewModel() {
     val realm = MyApp.realm
+
+    val toDos = realm
+        .query<TodoItem>()
+        .asFlow()
+        .map { results ->
+            results.list.toList()
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            emptyList()
+        )
 
     fun createEntry(item: String, isCompleted: Boolean){
 
