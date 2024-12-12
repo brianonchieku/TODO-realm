@@ -7,5 +7,5 @@ import org.mongodb.kbson.ObjectId
 class TodoItem: RealmObject {
     @PrimaryKey val _id: ObjectId = ObjectId()
     var description: String = ""
-    var isCompleted: Boolean = false
+    var iscompleted: Boolean = false
 }
