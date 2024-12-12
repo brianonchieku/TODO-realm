@@ -1,5 +1,8 @@
 package com.example.todorealm
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todorealm.models.TodoItem
@@ -24,6 +27,23 @@ class TodoViewModel: ViewModel() {
             SharingStarted.WhileSubscribed(),
             emptyList()
         )
+
+    var todoItem: TodoItem? by mutableStateOf(null)
+        private set
+
+    fun showtodoItems(item: TodoItem){
+        todoItem = item
+
+    }
+
+    fun hidetodoItems(){
+        todoItem = null
+    }
+
+
+
+
+
 
     fun createEntry(item: String, isCompleted: Boolean){
 
