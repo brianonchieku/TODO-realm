@@ -67,6 +67,10 @@ fun ListPage(viewModel: TodoViewModel){
             .fillMaxSize()
             .padding(16.dp), contentAlignment = Alignment.Center){
 
+            if (viewModel.todoItemDelete == true){
+
+            }
+
             if(viewModel.todoItem != null){
                 AddDialog(
                     item = viewModel.todoItem!!,
@@ -85,7 +89,10 @@ fun ListPage(viewModel: TodoViewModel){
                                 .padding(16.dp)
                                 .clickable {
                                     viewModel.showtodoItems(item)
-                                })
+                                }, onClick = {
+                                    viewModel.todoItemDelete = true
+                            }
+                            )
                     }
 
                 }
@@ -99,14 +106,14 @@ fun ListPage(viewModel: TodoViewModel){
 }
 
 @Composable
-fun TodoItem(item: TodoItem, modifier: Modifier){
+fun TodoItem(item: TodoItem, modifier: Modifier, onClick: () -> Unit){
     Row(
         modifier = modifier
     ) {
         Text(text = item.description,
             fontSize = 14.sp)
         
-        IconButton(onClick = {  }) {
+        IconButton(onClick = { onClick }) {
             Icon(imageVector = Icons.Default.Delete, contentDescription = "delete" )
             
         }

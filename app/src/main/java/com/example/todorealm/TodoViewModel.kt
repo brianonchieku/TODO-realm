@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todorealm.models.TodoItem
 import io.realm.kotlin.UpdatePolicy
+import io.realm.kotlin.delete
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -40,6 +41,8 @@ class TodoViewModel: ViewModel() {
         todoItem = null
     }
 
+    var todoItemDelete: Boolean? by mutableStateOf(false)
+
 
     fun createEntry(item: String, isCompleted: Boolean){
 
@@ -57,6 +60,14 @@ class TodoViewModel: ViewModel() {
             }
         }
 
+    }
+
+    fun deleteItem(item: TodoItem){
+        realm.writeBlocking {
+            findLatest(item)?.also {
+                delete(it)
+            }
+        }
     }
 
 }

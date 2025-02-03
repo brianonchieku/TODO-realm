@@ -21,7 +21,6 @@ class MainActivity : ComponentActivity() {
         val viewModel = ViewModelProvider(this)[TodoViewModel::class.java]
         setContent {
             ListPage(viewModel = viewModel)
-
         }
     }
 }
