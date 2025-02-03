@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -67,9 +70,15 @@ fun ListPage(viewModel: TodoViewModel){
             .fillMaxSize()
             .padding(16.dp), contentAlignment = Alignment.Center){
 
-            if (viewModel.todoItemDelete == true){
+            if(viewModel.showDeleteDialog){
+                DeleteDialog(
+                    onDeleteDismiss = { viewModel.dismissDeleteDialog() },
+                    onConfirm = { viewModel.deleteItem() }
+                )
 
             }
+
+
 
             if(viewModel.todoItem != null){
                 AddDialog(
@@ -90,7 +99,7 @@ fun ListPage(viewModel: TodoViewModel){
                                 .clickable {
                                     viewModel.showtodoItems(item)
                                 }, onClick = {
-                                    viewModel.todoItemDelete = true
+                                    viewModel.showDeleteDioalog(item)
                             }
                             )
                     }
@@ -99,9 +108,6 @@ fun ListPage(viewModel: TodoViewModel){
 
             }
         }
-
-
-
     }
 }
 
@@ -139,5 +145,31 @@ fun AddDialog(item: TodoItem, onDismiss: () ->Unit){
 
         }
 
+    }
+}
+@Composable
+fun DeleteDialog(onDeleteDismiss: () -> Unit, onConfirm: () -> Unit){
+    Dialog(onDismissRequest = { onDeleteDismiss }) {
+        Card(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(text = "Confirm Deletion", fontWeight = FontWeight.Bold)
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = { onDeleteDismiss }) {
+                        Text("Cancel")
+                    }
+                    TextButton(onClick = { onConfirm }) {
+                        Text("Delete", color = Color.Red, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
     }
 }

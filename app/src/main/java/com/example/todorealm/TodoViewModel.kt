@@ -31,17 +31,28 @@ class TodoViewModel: ViewModel() {
 
     var todoItem: TodoItem? by mutableStateOf(null)
         private set
-
     fun showtodoItems(item: TodoItem){
         todoItem = item
-
     }
-
     fun hidetodoItems(){
         todoItem = null
     }
 
-    var todoItemDelete: Boolean? by mutableStateOf(false)
+
+    var selectedItem: TodoItem? by mutableStateOf(null)
+       private set
+    var showDeleteDialog by mutableStateOf(false)
+        private set
+    fun showDeleteDioalog(item: TodoItem){
+        selectedItem = item
+        showDeleteDialog = true
+    }
+    fun dismissDeleteDialog(){
+        showDeleteDialog = false
+        selectedItem = null
+
+    }
+
 
 
     fun createEntry(item: String, isCompleted: Boolean){
@@ -62,9 +73,19 @@ class TodoViewModel: ViewModel() {
 
     }
 
-    fun deleteItem(item: TodoItem){
+    /*fun deleteItem(item: TodoItem){
         realm.writeBlocking {
             findLatest(item)?.also {
+                delete(it)
+            }
+        }
+    }*/
+
+    fun deleteItem() {
+        val item = selectedItem?: return
+        realm.writeBlocking {
+            val toDelete = query<TodoItem>("id == $0", item._id).first().find()
+            toDelete?.let {
                 delete(it)
             }
         }
