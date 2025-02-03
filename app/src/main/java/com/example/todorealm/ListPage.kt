@@ -71,9 +71,6 @@ fun ListPage(viewModel: TodoViewModel){
                 AddDialog(
                     item = viewModel.todoItem!!,
                     onDismiss = {viewModel.hidetodoItems()})
-
-
-
             }
 
             todos.let {
@@ -89,7 +86,6 @@ fun ListPage(viewModel: TodoViewModel){
                                 .clickable {
                                     viewModel.showtodoItems(item)
                                 })
-
                     }
 
                 }
