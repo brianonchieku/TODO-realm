@@ -1,5 +1,6 @@
 package com.example.todorealm
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,9 +64,13 @@ fun ListPage(viewModel: TodoViewModel){
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(todos){ item ->
-                    todoItem(item = item,
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(16.dp))
+                    TodoItem(item = item,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .clickable {
+                                viewModel.showtodoItems(item)
+                            })
 
                 }
 
@@ -73,12 +82,17 @@ fun ListPage(viewModel: TodoViewModel){
 }
 
 @Composable
-fun todoItem(item: TodoItem, modifier: Modifier){
-    Column(
+fun TodoItem(item: TodoItem, modifier: Modifier){
+    Row(
         modifier = modifier
     ) {
         Text(text = item.description,
             fontSize = 14.sp)
+        
+        IconButton(onClick = {  }) {
+            Icon(imageVector = Icons.Default.Delete, contentDescription = "delete" )
+            
+        }
 
     }
 

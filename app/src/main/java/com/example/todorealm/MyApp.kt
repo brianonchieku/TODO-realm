@@ -8,17 +8,18 @@ import io.realm.kotlin.RealmConfiguration
 class MyApp: Application() {
 
     companion object{
-        lateinit var realm: Realm
+        val realm: Realm by lazy {
+            Realm.open(
+                configuration = RealmConfiguration.create(
+                    schema = setOf(
+                        TodoItem::class
+                    )
+                )
+            )
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
-        realm = Realm.open(
-            configuration = RealmConfiguration.create(
-                schema = setOf(
-                    TodoItem::class
-                )
-            )
-        )
     }
 }

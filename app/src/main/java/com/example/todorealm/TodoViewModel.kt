@@ -41,10 +41,6 @@ class TodoViewModel: ViewModel() {
     }
 
 
-
-
-
-
     fun createEntry(item: String, isCompleted: Boolean){
 
         viewModelScope.launch {
