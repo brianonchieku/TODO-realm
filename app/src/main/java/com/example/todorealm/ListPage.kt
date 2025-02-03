@@ -68,6 +68,11 @@ fun ListPage(viewModel: TodoViewModel){
             .padding(16.dp), contentAlignment = Alignment.Center){
 
             if(viewModel.todoItem != null){
+                AddDialog(
+                    item = viewModel.todoItem!!,
+                    onDismiss = {viewModel.hidetodoItems()})
+
+
 
             }
 
@@ -114,8 +119,8 @@ fun TodoItem(item: TodoItem, modifier: Modifier){
 }
 
 @Composable
-fun AddDialog(item: TodoItem){
-    Dialog(onDismissRequest = { /*TODO*/ }) {
+fun AddDialog(item: TodoItem, onDismiss: () ->Unit){
+    Dialog(onDismissRequest = { onDismiss }) {
         Card(
             modifier = Modifier
                 .wrapContentSize()
