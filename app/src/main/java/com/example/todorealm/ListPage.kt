@@ -43,14 +43,16 @@ import com.example.todorealm.models.TodoItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListPage(viewModel: TodoViewModel){
-    var inputText by remember { mutableStateOf("") }
-    val isComplete by remember { mutableStateOf(false) }
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
     val todos by viewModel.toDos.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedItem: TodoItem? by remember { mutableStateOf(null) }
 
     Scaffold(topBar = {
         TopAppBar(title = {
             Text(text = "TODOs",
-                fontSize = 20.sp,
+                fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(8.dp))
         })
@@ -68,23 +70,19 @@ fun ListPage(viewModel: TodoViewModel){
                     .padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(value = inputText, onValueChange ={inputText = it},
+               /* OutlinedTextField(value = title, onValueChange ={title = it},
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(text = "Enter a task...")}, shape = RoundedCornerShape(16.dp)
-                )
+                )*/
 
                 Button(onClick = {
-                    if (inputText.isNotEmpty()){
-                        viewModel.createEntry(inputText, isComplete)
-                        inputText = ""
-                    }
+                    selectedItem = null
+                    showDialog = true
 
                 }, modifier = Modifier.align(Alignment.CenterVertically)
                 ) {
-                    Text(text = "ADD")
-
+                    Text(text = "NEW")
                 }
-
             }
 
             Box(modifier = Modifier
@@ -105,7 +103,11 @@ fun ListPage(viewModel: TodoViewModel){
                                     .fillMaxWidth()
                                     .padding(8.dp)
                                     .clickable { viewModel.showtodoItems(item) },
-                                onClickDelete = { viewModel.showDeleteDioalog(item) }
+                                onClickDelete = { viewModel.showDeleteDioalog(item) },
+                                onClick = {
+                                    selectedItem = item // Set the selected item for editing
+                                    showDialog = true
+                                }
                             )
                         }
                     }
@@ -126,17 +128,31 @@ fun ListPage(viewModel: TodoViewModel){
     }
 
     // View Task Dialog
-    if (viewModel.todoItem != null) {
+    if (showDialog) {
         AddDialog(
             item = viewModel.todoItem!!,
-            onDismiss = { viewModel.hidetodoItems() }
+            onDismiss = { viewModel.hidetodoItems() },
+            onSave = {  titlee, descriptionn ->
+                if (selectedItem == null) {
+                    viewModel.createEntry(titlee, descriptionn) // Create new
+                } else {
+                    viewModel.updateEntry(selectedItem!!, titlee, descriptionn) // Update existing
+                }
+                showDialog = false
+
+            }
         )
     }
 }
 
 
 @Composable
-fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit) {
+fun TodoItem(
+    item: TodoItem,
+    modifier: Modifier,
+    onClick: () -> Unit,
+    onClickDelete: () -> Unit
+) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
@@ -145,15 +161,18 @@ fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(12.dp)
+                .clickable { onClick() },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = item.description,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
-            )
+            Column {
+                Text(
+                    text = item.title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(text = item.description, fontSize = 14.sp)
+            }
 
             IconButton(onClick = onClickDelete) {
                 Icon(
@@ -174,30 +193,68 @@ fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit){
     ) {
         Text(text = item.description,
             fontSize = 20.sp)
-        
+
         IconButton(onClick = onClickDelete ) {
             Icon(imageVector = Icons.Default.Delete, contentDescription = "delete",
                 modifier=Modifier.size(19.dp))
-            
+
         }
     }
 }*/
 
 @Composable
-fun AddDialog(item: TodoItem, onDismiss: () ->Unit){
+fun AddDialog(
+    item: TodoItem?,
+    onDismiss: () ->Unit,
+    onSave: (String, String) -> Unit
+){
+    var title by remember { mutableStateOf(item?.title?: "") }
+    var description by remember { mutableStateOf(item?.description?: "") }
+
     Dialog(onDismissRequest = onDismiss ) {
         Card(
-            modifier = Modifier.wrapContentSize()
+            modifier = Modifier
+                .wrapContentSize()
                 .padding(16.dp), shape = RoundedCornerShape(16.dp)
         ) {
             Column(
                 modifier = Modifier
                     .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = item.description, fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
+                Text(
+                    text = if (item == null) "Add Todo" else "Edit Todo",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Title") },
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    singleLine = false
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    TextButton(onClick = {
+                        if (title.isNotBlank() && description.isNotBlank()) {
+                            onSave(title, description)
+                        }
+                    }) {
+                        Text("Save")
+                    }
+                }
             }
 
         }

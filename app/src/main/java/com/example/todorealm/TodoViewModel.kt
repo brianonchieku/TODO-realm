@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class TodoViewModel: ViewModel() {
     val realm = MyApp.realm
@@ -55,13 +56,14 @@ class TodoViewModel: ViewModel() {
 
 
 
-    fun createEntry(item: String, isCompleted: Boolean){
+    fun createEntry(title: String, item: String){
 
         viewModelScope.launch {
             realm.write {
                 val toDoItem = TodoItem().apply {
+                    this.title = title
                     description = item
-                    iscompleted = isCompleted
+                    this.date = Date()
 
                 }
 
@@ -71,6 +73,15 @@ class TodoViewModel: ViewModel() {
             }
         }
 
+    }
+
+    fun updateEntry(item: TodoItem, newTitle: String, newDescription: String) {
+        realm.writeBlocking {
+            findLatest(item)?.apply {
+                title = newTitle
+                description = newDescription
+            }
+        }
     }
 
     /*fun deleteItem(item: TodoItem){
