@@ -11,15 +11,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.todorealm.models.TodoItem
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListPage(viewModel: TodoViewModel){
     var inputText by remember { mutableStateOf("") }
@@ -42,76 +47,84 @@ fun ListPage(viewModel: TodoViewModel){
 
     val todos by viewModel.toDos.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .padding(top = 40.dp)
-    ) {
-        Row(
+    Scaffold(topBar = {
+        TopAppBar(title = { Text(text = "TODOs")})
+    }) { paddingValues ->
+
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            OutlinedTextField(value = inputText, onValueChange ={inputText = it},
-                modifier = Modifier.weight(1f),
-                placeholder = { Text(text = "Type here")}
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                OutlinedTextField(value = inputText, onValueChange ={inputText = it},
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text(text = "Type here")}, shape = RoundedCornerShape(25.dp)
                 )
 
-            Button(onClick = {
-                if (inputText.isNotEmpty()){
-                    viewModel.createEntry(inputText, isComplete)
+                Button(onClick = {
+                    if (inputText.isNotEmpty()){
+                        viewModel.createEntry(inputText, isComplete)
+                        inputText = ""
+                    }
+
+                }) {
+                    Text(text = "ADD")
+
                 }
 
-            }) {
-                Text(text = "ADD")
-
             }
 
-        }
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp), contentAlignment = Alignment.Center){
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp), contentAlignment = Alignment.Center){
+                if(viewModel.showDeleteDialog){
+                    DeleteDialog(
+                        onDeleteDismiss = { viewModel.dismissDeleteDialog() },
+                        onConfirm = { viewModel.deleteItem() }
+                    )
 
-            if(viewModel.showDeleteDialog){
-                DeleteDialog(
-                    onDeleteDismiss = { viewModel.dismissDeleteDialog() },
-                    onConfirm = { viewModel.deleteItem() }
-                )
+                }
 
-            }
+                if(viewModel.todoItem != null){
+                    AddDialog(
+                        item = viewModel.todoItem!!,
+                        onDismiss = {viewModel.hidetodoItems()})
+                }
 
-            if(viewModel.todoItem != null){
-                AddDialog(
-                    item = viewModel.todoItem!!,
-                    onDismiss = {viewModel.hidetodoItems()})
-            }
-
-            todos.let {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(todos){ item ->
-                        TodoItem(item = item,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .clickable {
-                                    viewModel.showtodoItems(item)
-                                }, onClickDelete = {
+                todos.let {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(todos){ item ->
+                            TodoItem(item = item,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .clickable {
+                                        viewModel.showtodoItems(item)
+                                    }, onClickDelete = {
                                     viewModel.showDeleteDioalog(item)
-                            }
+                                }
                             )
+                        }
+
                     }
 
                 }
-
             }
         }
+
     }
+
+
 }
 
 @Composable
@@ -126,7 +139,6 @@ fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit){
             Icon(imageVector = Icons.Default.Delete, contentDescription = "delete" )
             
         }
-
     }
 }
 
