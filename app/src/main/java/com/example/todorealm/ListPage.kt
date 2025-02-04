@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,27 +45,32 @@ import com.example.todorealm.models.TodoItem
 fun ListPage(viewModel: TodoViewModel){
     var inputText by remember { mutableStateOf("") }
     val isComplete by remember { mutableStateOf(false) }
-
     val todos by viewModel.toDos.collectAsState()
 
     Scaffold(topBar = {
-        TopAppBar(title = { Text(text = "TODOs")})
+        TopAppBar(title = {
+            Text(text = "TODOs",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(8.dp))
+        })
     }) { paddingValues ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(value = inputText, onValueChange ={inputText = it},
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text(text = "Type here")}, shape = RoundedCornerShape(25.dp)
+                    placeholder = { Text(text = "Enter a task...")}, shape = RoundedCornerShape(16.dp)
                 )
 
                 Button(onClick = {
@@ -73,7 +79,8 @@ fun ListPage(viewModel: TodoViewModel){
                         inputText = ""
                     }
 
-                }) {
+                }, modifier = Modifier.align(Alignment.CenterVertically)
+                ) {
                     Text(text = "ADD")
 
                 }
@@ -82,77 +89,114 @@ fun ListPage(viewModel: TodoViewModel){
 
             Box(modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp), contentAlignment = Alignment.Center){
+                .padding(8.dp), contentAlignment = Alignment.Center){
 
-                if(viewModel.showDeleteDialog){
-                    DeleteDialog(
-                        onDeleteDismiss = { viewModel.dismissDeleteDialog() },
-                        onConfirm = { viewModel.deleteItem() }
-                    )
-
-                }
-
-                if(viewModel.todoItem != null){
-                    AddDialog(
-                        item = viewModel.todoItem!!,
-                        onDismiss = {viewModel.hidetodoItems()})
-                }
-
-                todos.let {
+                if (todos.isEmpty()) {
+                    Text(text = "No tasks available", fontSize = 18.sp, color = Color.Gray)
+                } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(todos){ item ->
-                            TodoItem(item = item,
+                        items(todos) { item ->
+                            TodoItem(
+                                item = item,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp)
-                                    .clickable {
-                                        viewModel.showtodoItems(item)
-                                    }, onClickDelete = {
-                                    viewModel.showDeleteDioalog(item)
-                                }
+                                    .padding(8.dp)
+                                    .clickable { viewModel.showtodoItems(item) },
+                                onClickDelete = { viewModel.showDeleteDioalog(item) }
                             )
                         }
-
                     }
-
                 }
             }
         }
-
     }
 
+    // Delete Dialog
+    if (viewModel.showDeleteDialog) {
+        DeleteDialog(
+            onDeleteDismiss = { viewModel.dismissDeleteDialog() },
+            onConfirm = {
+                viewModel.deleteItem()
+                viewModel.dismissDeleteDialog()
+            }
+        )
+    }
 
+    // View Task Dialog
+    if (viewModel.todoItem != null) {
+        AddDialog(
+            item = viewModel.todoItem!!,
+            onDismiss = { viewModel.hidetodoItems() }
+        )
+    }
 }
 
+
 @Composable
+fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = item.description,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+
+            IconButton(onClick = onClickDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    modifier = Modifier.size(22.dp)
+
+                )
+            }
+        }
+    }
+}
+
+/*@Composable
 fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit){
     Row(
         modifier = modifier, horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = item.description,
-            fontSize = 25.sp)
+            fontSize = 20.sp)
         
         IconButton(onClick = onClickDelete ) {
-            Icon(imageVector = Icons.Default.Delete, contentDescription = "delete" )
+            Icon(imageVector = Icons.Default.Delete, contentDescription = "delete",
+                modifier=Modifier.size(19.dp))
             
         }
     }
-}
+}*/
 
 @Composable
 fun AddDialog(item: TodoItem, onDismiss: () ->Unit){
     Dialog(onDismissRequest = onDismiss ) {
         Card(
-            modifier = Modifier
-                .padding(16.dp)
+            modifier = Modifier.wrapContentSize()
+                .padding(16.dp), shape = RoundedCornerShape(16.dp)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = item.description, fontSize = 30.sp)
+                Text(text = item.description, fontSize = 24.sp, fontWeight = FontWeight.Bold)
 
             }
 

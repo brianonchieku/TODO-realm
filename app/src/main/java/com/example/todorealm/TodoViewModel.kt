@@ -84,7 +84,7 @@ class TodoViewModel: ViewModel() {
     fun deleteItem() {
         val item = selectedItem?: return
         realm.writeBlocking {
-            val toDelete = query<TodoItem>("id == $0", item._id).first().find()
+            val toDelete = query<TodoItem>("_id == $0", item._id).first().find()
             toDelete?.let {
                 delete(it)
             }
