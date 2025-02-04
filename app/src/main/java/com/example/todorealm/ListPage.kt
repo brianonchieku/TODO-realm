@@ -38,7 +38,7 @@ import com.example.todorealm.models.TodoItem
 @Composable
 fun ListPage(viewModel: TodoViewModel){
     var inputText by remember { mutableStateOf("") }
-    var isComplete by remember { mutableStateOf(false) }
+    val isComplete by remember { mutableStateOf(false) }
 
     val todos by viewModel.toDos.collectAsState()
 
@@ -51,14 +51,19 @@ fun ListPage(viewModel: TodoViewModel){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             OutlinedTextField(value = inputText, onValueChange ={inputText = it},
-                modifier = Modifier.weight(1f))
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(text = "Type here")}
+                )
 
             Button(onClick = {
-                viewModel.createEntry(inputText, isComplete)
+                if (inputText.isNotEmpty()){
+                    viewModel.createEntry(inputText, isComplete)
+                }
+
             }) {
                 Text(text = "ADD")
 
@@ -78,8 +83,6 @@ fun ListPage(viewModel: TodoViewModel){
 
             }
 
-
-
             if(viewModel.todoItem != null){
                 AddDialog(
                     item = viewModel.todoItem!!,
@@ -98,7 +101,7 @@ fun ListPage(viewModel: TodoViewModel){
                                 .padding(16.dp)
                                 .clickable {
                                     viewModel.showtodoItems(item)
-                                }, onClick = {
+                                }, onClickDelete = {
                                     viewModel.showDeleteDioalog(item)
                             }
                             )
@@ -112,14 +115,14 @@ fun ListPage(viewModel: TodoViewModel){
 }
 
 @Composable
-fun TodoItem(item: TodoItem, modifier: Modifier, onClick: () -> Unit){
+fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit){
     Row(
-        modifier = modifier
+        modifier = modifier, horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = item.description,
-            fontSize = 14.sp)
+            fontSize = 25.sp)
         
-        IconButton(onClick = { onClick }) {
+        IconButton(onClick = onClickDelete ) {
             Icon(imageVector = Icons.Default.Delete, contentDescription = "delete" )
             
         }
@@ -129,15 +132,13 @@ fun TodoItem(item: TodoItem, modifier: Modifier, onClick: () -> Unit){
 
 @Composable
 fun AddDialog(item: TodoItem, onDismiss: () ->Unit){
-    Dialog(onDismissRequest = { onDismiss }) {
+    Dialog(onDismissRequest = onDismiss ) {
         Card(
             modifier = Modifier
-                .wrapContentSize()
                 .padding(16.dp)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(text = item.description, fontSize = 30.sp)
 
@@ -149,7 +150,7 @@ fun AddDialog(item: TodoItem, onDismiss: () ->Unit){
 }
 @Composable
 fun DeleteDialog(onDeleteDismiss: () -> Unit, onConfirm: () -> Unit){
-    Dialog(onDismissRequest = { onDeleteDismiss }) {
+    Dialog(onDismissRequest = onDeleteDismiss ) {
         Card(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -162,10 +163,10 @@ fun DeleteDialog(onDeleteDismiss: () -> Unit, onConfirm: () -> Unit){
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextButton(onClick = { onDeleteDismiss }) {
+                    TextButton(onClick =  onDeleteDismiss ) {
                         Text("Cancel")
                     }
-                    TextButton(onClick = { onConfirm }) {
+                    TextButton(onClick = onConfirm ) {
                         Text("Delete", color = Color.Red, fontWeight = FontWeight.Bold)
                     }
                 }
