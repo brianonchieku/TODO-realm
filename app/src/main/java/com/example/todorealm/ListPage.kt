@@ -43,8 +43,6 @@ import com.example.todorealm.models.TodoItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListPage(viewModel: TodoViewModel){
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     val todos by viewModel.toDos.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var selectedItem: TodoItem? by remember { mutableStateOf(null) }
@@ -101,8 +99,7 @@ fun ListPage(viewModel: TodoViewModel){
                                 item = item,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(8.dp)
-                                    .clickable { viewModel.showtodoItems(item) },
+                                    .padding(8.dp),
                                 onClickDelete = { viewModel.showDeleteDioalog(item) },
                                 onClick = {
                                     selectedItem = item // Set the selected item for editing
@@ -130,8 +127,8 @@ fun ListPage(viewModel: TodoViewModel){
     // View Task Dialog
     if (showDialog) {
         AddDialog(
-            item = viewModel.todoItem!!,
-            onDismiss = { viewModel.hidetodoItems() },
+            item = selectedItem,
+            onDismiss = { showDialog = false },
             onSave = {  titlee, descriptionn ->
                 if (selectedItem == null) {
                     viewModel.createEntry(titlee, descriptionn) // Create new
@@ -185,22 +182,6 @@ fun TodoItem(
         }
     }
 }
-
-/*@Composable
-fun TodoItem(item: TodoItem, modifier: Modifier, onClickDelete: () -> Unit){
-    Row(
-        modifier = modifier, horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = item.description,
-            fontSize = 20.sp)
-
-        IconButton(onClick = onClickDelete ) {
-            Icon(imageVector = Icons.Default.Delete, contentDescription = "delete",
-                modifier=Modifier.size(19.dp))
-
-        }
-    }
-}*/
 
 @Composable
 fun AddDialog(

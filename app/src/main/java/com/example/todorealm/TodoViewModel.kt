@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.mongodb.kbson.BsonDateTime
+import java.time.Clock
 import java.util.Date
 
 class TodoViewModel: ViewModel() {
@@ -63,7 +65,6 @@ class TodoViewModel: ViewModel() {
                 val toDoItem = TodoItem().apply {
                     this.title = title
                     description = item
-                    this.date = Date()
 
                 }
 
