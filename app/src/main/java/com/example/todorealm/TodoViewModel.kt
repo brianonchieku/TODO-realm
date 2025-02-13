@@ -32,14 +32,14 @@ class TodoViewModel: ViewModel() {
             emptyList()
         )
 
-    var todoItem: TodoItem? by mutableStateOf(null)
+   /* var todoItem: TodoItem? by mutableStateOf(null)
         private set
     fun showtodoItems(item: TodoItem){
         todoItem = item
     }
     fun hidetodoItems(){
         todoItem = null
-    }
+    }*/
 
 
     var selectedItem: TodoItem? by mutableStateOf(null)
